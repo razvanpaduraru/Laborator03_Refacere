@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 public class PhoneDialerActivity extends AppCompatActivity {
 
@@ -22,6 +23,7 @@ public class PhoneDialerActivity extends AppCompatActivity {
     private ImageButton backspaceImageButton;
     private ImageButton callImageButton;
     private ImageButton hangupImageButton;
+    private ImageButton contactsImageButton;
 
     private CallImageButtonClickListener callImageButtonClickListener = new CallImageButtonClickListener();
     private class CallImageButtonClickListener implements View.OnClickListener {
@@ -36,6 +38,21 @@ public class PhoneDialerActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_CALL);
                 intent.setData(Uri.parse("tel:" + phoneNumberEditText.getText().toString()));
                 startActivity(intent);
+            }
+        }
+    }
+
+    private ContactsImageButtonClickListener contactsImageButtonClickListener = new ContactsImageButtonClickListener();
+    private class ContactsImageButtonClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View view) {
+            String phoneNumber = phoneNumberEditText.getText().toString();
+            if (phoneNumber.length() > 0) {
+                Intent intent = new Intent("ro.pub.cs.systems.eim.lab04.contactsmanager.intent.action.ContactsManagerActivity");
+                intent.putExtra("ro.pub.cs.systems.eim.lab04.contactsmanager.PHONE_NUMBER_KEY", phoneNumber);
+                startActivityForResult(intent, Constants.CONTACTS_MANAGER_REQUEST_CODE);
+            } else {
+                Toast.makeText(getApplication(), getResources().getString(R.string.phone_error), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -83,7 +100,16 @@ public class PhoneDialerActivity extends AppCompatActivity {
             genericButton = (Button)findViewById(Constants.buttonIds[index]);
             genericButton.setOnClickListener(genericButtonClickListener);
         }
+        contactsImageButton = (ImageButton)findViewById(R.id.contacts_image_button);
+        contactsImageButton.setOnClickListener(contactsImageButtonClickListener);
     }
 
-
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        switch (requestCode) {
+            case Constants.CONTACTS_MANAGER_REQUEST_CODE:
+                Toast.makeText(this, "Activity returned with result " + resultCode, Toast.LENGTH_LONG).show();
+                break;
+        }
+    }
 }
